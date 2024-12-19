@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css"><link rel="stylesheet" href="css/L.Control.Locate.min.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/filter.css">
+<link rel="stylesheet" href="css/nouislider.min.css">
+        <link rel="stylesheet" href="css/leaflet-control-geocoder.Geocoder.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title>COMPONENTE NATURAL - OWASIS GUAYAMA</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script><script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-control-geocoder.Geocoder.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="js/tailDT.js"></script>
+<script src="js/nouislider.min.js"></script>
+<script src="js/wNumb.js"></script>
+        <script src="data/Owasis_Guayama_2.js"></script>
+        <script src="data/iNaturalist_Guayama_3.js"></script>
+        <script>
+        var highlightLayer;
+        function highlightFeature(e) {
+            highlightLayer = e.target;
+
+            if (e.target.feature.geometry.type === 'LineString') {
+              highlightLayer.setStyle({
+                color: '#ffff00',
+              });
+            } else {
+              highlightLayer.setStyle({
+                fillColor: '#ffff00',
+                fillOpacity: 1
+              });
+            }
+        }
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:28, minZoom:1
+        })
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        L.control.locate({locateOptions: {maxZoom: 19}}).addTo(map);
+        var measureControl = new L.Control.Measure({
+            position: 'topleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        measureControl.addTo(map);
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .innerHTML = '';
+        document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+            if (bounds_group.getLayers().length) {
+                map.fitBounds(bounds_group.getBounds());
+            }
+        }
+        map.createPane('pane_GoogleMaps_0');
+        map.getPane('pane_GoogleMaps_0').style.zIndex = 400;
+        var layer_GoogleMaps_0 = L.tileLayer('https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleMaps_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 18
+        });
+        layer_GoogleMaps_0;
+        map.addLayer(layer_GoogleMaps_0);
+        map.createPane('pane_GoogleSatellite_1');
+        map.getPane('pane_GoogleSatellite_1').style.zIndex = 401;
+        var layer_GoogleSatellite_1 = L.tileLayer('https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatellite_1',
+            opacity: 1.0,
+            attribution: '<a href="https://www.google.at/permissions/geoguidelines/attr-guide.html">Map data ©2015 Google</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 20
+        });
+        layer_GoogleSatellite_1;
+        map.addLayer(layer_GoogleSatellite_1);
+        function pop_Owasis_Guayama_2(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>RESPONSABLE</strong><br />' + (feature.properties['Nombre'] !== null ? autolinker.link(feature.properties['Nombre'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>USO QUÍMICOS</strong><br />' + (feature.properties['USO_AGROQU'] !== null ? autolinker.link(feature.properties['USO_AGROQU'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Area_ha'] !== null ? autolinker.link(feature.properties['Area_ha'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>ID CAMPO</strong><br />' + (feature.properties['ID_Parcela'] !== null ? autolinker.link(feature.properties['ID_Parcela'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Nombre_1'] !== null ? autolinker.link(feature.properties['Nombre_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Apellido'] !== null ? autolinker.link(feature.properties['Apellido'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>COMUNIDAD</strong><br />' + (feature.properties['Comunidad'] !== null ? autolinker.link(feature.properties['Comunidad'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['N°_veces_'] !== null ? autolinker.link(feature.properties['N°_veces_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_Owasis_Guayama_2_0() {
+            return {
+                pane: 'pane_Owasis_Guayama_2',
+                opacity: 1,
+                color: 'rgba(228,26,28,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 4.0,
+                fillOpacity: 0,
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Owasis_Guayama_2');
+        map.getPane('pane_Owasis_Guayama_2').style.zIndex = 402;
+        map.getPane('pane_Owasis_Guayama_2').style['mix-blend-mode'] = 'normal';
+        var layer_Owasis_Guayama_2 = new L.geoJson(json_Owasis_Guayama_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Owasis_Guayama_2',
+            layerName: 'layer_Owasis_Guayama_2',
+            pane: 'pane_Owasis_Guayama_2',
+            onEachFeature: pop_Owasis_Guayama_2,
+            style: style_Owasis_Guayama_2_0,
+        });
+        bounds_group.addLayer(layer_Owasis_Guayama_2);
+        map.addLayer(layer_Owasis_Guayama_2);
+        function pop_iNaturalist_Guayama_3(feature, layer) {
+            layer.on({
+                mouseout: function(e) {
+                    for (i in e.target._eventParents) {
+                        e.target._eventParents[i].resetStyle(e.target);
+                    }
+                },
+                mouseover: highlightFeature,
+            });
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2"><strong>ID</strong><br />' + (feature.properties['id'] !== null ? autolinker.link(feature.properties['id'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>USUARIO</strong><br />' + (feature.properties['user_name'] !== null ? autolinker.link(feature.properties['user_name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['created_at'] !== null ? autolinker.link(feature.properties['created_at'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>URL</strong><br />' + (feature.properties['url'] !== null ? autolinker.link(feature.properties['url'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['sound_url'] !== null ? autolinker.link(feature.properties['sound_url'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['latitude'] !== null ? autolinker.link(feature.properties['latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['longitude'] !== null ? autolinker.link(feature.properties['longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>scientific</strong><br />' + (feature.properties['scientific'] !== null ? autolinker.link(feature.properties['scientific'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>common_nam</strong><br />' + (feature.properties['common_nam'] !== null ? autolinker.link(feature.properties['common_nam'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>taxon_king</strong><br />' + (feature.properties['taxon_king'] !== null ? autolinker.link(feature.properties['taxon_king'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>taxon_orde</strong><br />' + (feature.properties['taxon_orde'] !== null ? autolinker.link(feature.properties['taxon_orde'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>taxon_fami</strong><br />' + (feature.properties['taxon_fami'] !== null ? autolinker.link(feature.properties['taxon_fami'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>taxon_genu</strong><br />' + (feature.properties['taxon_genu'] !== null ? autolinker.link(feature.properties['taxon_genu'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>taxon_spec</strong><br />' + (feature.properties['taxon_spec'] !== null ? autolinker.link(feature.properties['taxon_spec'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_iNaturalist_Guayama_3_0(feature) {
+            switch(String(feature.properties['taxon_king'])) {
+                case 'Animalia':
+                    return {
+                pane: 'pane_iNaturalist_Guayama_3',
+                radius: 4.799999999999997,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,127,0,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Fungi':
+                    return {
+                pane: 'pane_iNaturalist_Guayama_3',
+                radius: 4.799999999999997,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(223,14,199,1.0)',
+                interactive: true,
+            }
+                    break;
+                case 'Plantae':
+                    return {
+                pane: 'pane_iNaturalist_Guayama_3',
+                radius: 4.799999999999997,
+                opacity: 1,
+                color: 'rgba(128,17,25,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(115,223,14,1.0)',
+                interactive: true,
+            }
+                    break;
+                default:
+                    return {
+                pane: 'pane_iNaturalist_Guayama_3',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(147,231,94,1.0)',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_iNaturalist_Guayama_3');
+        map.getPane('pane_iNaturalist_Guayama_3').style.zIndex = 403;
+        map.getPane('pane_iNaturalist_Guayama_3').style['mix-blend-mode'] = 'normal';
+        var layer_iNaturalist_Guayama_3 = new L.geoJson(json_iNaturalist_Guayama_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_iNaturalist_Guayama_3',
+            layerName: 'layer_iNaturalist_Guayama_3',
+            pane: 'pane_iNaturalist_Guayama_3',
+            onEachFeature: pop_iNaturalist_Guayama_3,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_iNaturalist_Guayama_3_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_iNaturalist_Guayama_3);
+        map.addLayer(layer_iNaturalist_Guayama_3);
+            var title = new L.Control();
+            title.onAdd = function (map) {
+                this._div = L.DomUtil.create('div', 'info');
+                this.update();
+                return this._div;
+            };
+            title.update = function () {
+                this._div.innerHTML = '<h2>COMPONENTE NATURAL - OWASIS GUAYAMA</h2>';
+            };
+            title.addTo(map);
+        var osmGeocoder = new L.Control.Geocoder({
+            collapsed: true,
+            position: 'topleft',
+            text: 'Search',
+            title: 'Testing'
+        }).addTo(map);
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .className += ' fa fa-search';
+        document.getElementsByClassName('leaflet-control-geocoder-icon')[0]
+        .title += 'Search for a place';
+        var baseMaps = {};
+        L.control.layers(baseMaps,{'iNaturalist_Guayama<br /><table><tr><td style="text-align: center;"><img src="legend/iNaturalist_Guayama_3_Animalia0.png" /></td><td>Animalia</td></tr><tr><td style="text-align: center;"><img src="legend/iNaturalist_Guayama_3_Fungi1.png" /></td><td>Fungi</td></tr><tr><td style="text-align: center;"><img src="legend/iNaturalist_Guayama_3_Plantae2.png" /></td><td>Plantae</td></tr><tr><td style="text-align: center;"><img src="legend/iNaturalist_Guayama_3_3.png" /></td><td></td></tr></table>': layer_iNaturalist_Guayama_3,'<img src="legend/Owasis_Guayama_2.png" /> Owasis_Guayama': layer_Owasis_Guayama_2,"Google Satellite": layer_GoogleSatellite_1,"Google Maps": layer_GoogleMaps_0,}).addTo(map);
+        setBounds();
+        var mapDiv = document.getElementById('map');
+        var row = document.createElement('div');
+        row.className="row";
+        row.id="all";
+        row.style.height = "100%";
+        var col1 = document.createElement('div');
+        col1.className="col9";
+        col1.id = "mapWindow";
+        col1.style.height = "99%";
+        col1.style.width = "80%";
+        col1.style.display = "inline-block";
+        var col2 = document.createElement('div');
+        col2.className="col3";
+        col2.id = "menu";
+        col2.style.display = "inline-block";
+        mapDiv.parentNode.insertBefore(row, mapDiv);
+        document.getElementById("all").appendChild(col1);
+        document.getElementById("all").appendChild(col2);
+        col1.appendChild(mapDiv)
+        var Filters = {"Nombre": "str","taxon_fami": "str"};
+        function filterFunc() {
+          map.eachLayer(function(lyr){
+          if ("options" in lyr && "dataVar" in lyr["options"]){
+            features = this[lyr["options"]["dataVar"]].features.slice(0);
+            try{
+              for (key in Filters){
+                keyS = key.replace(/[^a-zA-Z0-9_]/g, "")
+                if (Filters[key] == "str" || Filters[key] == "bool"){
+                  var selection = [];
+                  var options = document.getElementById("sel_" + keyS).options
+                  for (var i=0; i < options.length; i++) {
+                    if (options[i].selected) selection.push(options[i].value);
+                  }
+                    try{
+                      if (key in features[0].properties){
+                        for (i = features.length - 1;
+                          i >= 0; --i){
+                          if (selection.indexOf(
+                          features[i].properties[key])<0
+                          && selection.length>0) {
+                          features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                  }
+                }
+                if (Filters[key] == "int"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (parseInt(features[i].properties[key])
+                          < sliderVals[0]
+                          || parseInt(features[i].properties[key])
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "real"){
+                  sliderVals =  document.getElementById(
+                    "div_" + keyS).noUiSlider.get();
+                  try{
+                    if (key in features[0].properties){
+                    for (i = features.length - 1; i >= 0; --i){
+                      if (features[i].properties[key]
+                          < sliderVals[0]
+                          || features[i].properties[key]
+                          > sliderVals[1]){
+                            features.splice(i,1);
+                          }
+                        }
+                      }
+                    } catch(err){
+                    }
+                  }
+                if (Filters[key] == "date"
+                  || Filters[key] == "datetime"
+                  || Filters[key] == "time"){
+                  try{
+                    if (key in features[0].properties){
+                      HTMLkey = key.replace(/[&\/\\#,+()$~%.'":*?<>{} ]/g, '');
+                      startdate = document.getElementById("dat_" +
+                        HTMLkey + "_date1").value.replace(" ", "T");
+                      enddate = document.getElementById("dat_" +
+                        HTMLkey + "_date2").value.replace(" ", "T");
+                      for (i = features.length - 1; i >= 0; --i){
+                        if (features[i].properties[key] < startdate
+                          || features[i].properties[key] > enddate){
+                          features.splice(i,1);
+                        }
+                      }
+                    }
+                  } catch(err){
+                  }
+                }
+              }
+            } catch(err){
+            }
+          this[lyr["options"]["layerName"]].clearLayers();
+          this[lyr["options"]["layerName"]].addData(features);
+          }
+          })
+        }
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_Nombre = document.createElement('div');
+            div_Nombre.id = "div_Nombre";
+            div_Nombre.className= "filterselect";
+            document.getElementById("menu").appendChild(div_Nombre);
+            sel_Nombre = document.createElement('select');
+            sel_Nombre.multiple = true;
+            sel_Nombre.size = 10;
+            sel_Nombre.id = "sel_Nombre";
+            var Nombre_options_str = "<option value='' unselected></option>";
+            sel_Nombre.onchange = function(){filterFunc()};
+            Nombre_options_str  += '<option value="Alfonso Patango (Rosario)">Alfonso Patango (Rosario)</option>';
+            Nombre_options_str  += '<option value="Blanca Pilatasig">Blanca Pilatasig</option>';
+            Nombre_options_str  += '<option value="Casa Comunal">Casa Comunal</option>';
+            Nombre_options_str  += '<option value="Celinda Patango">Celinda Patango</option>';
+            Nombre_options_str  += '<option value="Jorge Pilatasig">Jorge Pilatasig</option>';
+            Nombre_options_str  += '<option value="Laura Molina Pilaguano">Laura Molina Pilaguano</option>';
+            Nombre_options_str  += '<option value="Manuel Patango">Manuel Patango</option>';
+            Nombre_options_str  += '<option value="Maria Hortencia Pilatasig">Maria Hortencia Pilatasig</option>';
+            Nombre_options_str  += '<option value="Maria Olga Ayala">Maria Olga Ayala</option>';
+            Nombre_options_str  += '<option value="Mercedes Pilatasig">Mercedes Pilatasig</option>';
+            Nombre_options_str  += '<option value="Rosa Pilaguano">Rosa Pilaguano</option>';
+            Nombre_options_str  += '<option value="Segundo Chusin">Segundo Chusin</option>';
+            Nombre_options_str  += '<option value="Segundo Patango">Segundo Patango</option>';
+            Nombre_options_str  += '<option value="Segundo Pilatasig">Segundo Pilatasig</option>';
+            Nombre_options_str  += '<option value="Telmo Patango">Telmo Patango</option>';
+            sel_Nombre.innerHTML = Nombre_options_str;
+            div_Nombre.appendChild(sel_Nombre);
+            var lab_Nombre = document.createElement('div');
+            lab_Nombre.innerHTML = 'Nombre';
+            lab_Nombre.className = 'filterlabel';
+            div_Nombre.appendChild(lab_Nombre);
+            var reset_Nombre = document.createElement('div');
+            reset_Nombre.innerHTML = 'clear filter';
+            reset_Nombre.className = 'filterlabel';
+            reset_Nombre.onclick = function() {
+                var options = document.getElementById("sel_Nombre").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_Nombre.appendChild(reset_Nombre);
+            document.getElementById("menu").appendChild(
+                document.createElement("div"));
+            var div_taxon_fami = document.createElement('div');
+            div_taxon_fami.id = "div_taxon_fami";
+            div_taxon_fami.className= "filterselect";
+            document.getElementById("menu").appendChild(div_taxon_fami);
+            sel_taxon_fami = document.createElement('select');
+            sel_taxon_fami.multiple = true;
+            sel_taxon_fami.size = 10;
+            sel_taxon_fami.id = "sel_taxon_fami";
+            var taxon_fami_options_str = "<option value='' unselected></option>";
+            sel_taxon_fami.onchange = function(){filterFunc()};
+            taxon_fami_options_str  += '<option value="NULL">NULL</option>';
+            taxon_fami_options_str  += '<option value="Acrididae">Acrididae</option>';
+            taxon_fami_options_str  += '<option value="Amaranthaceae">Amaranthaceae</option>';
+            taxon_fami_options_str  += '<option value="Anthomyiidae">Anthomyiidae</option>';
+            taxon_fami_options_str  += '<option value="Apiaceae">Apiaceae</option>';
+            taxon_fami_options_str  += '<option value="Apidae">Apidae</option>';
+            taxon_fami_options_str  += '<option value="Asilidae">Asilidae</option>';
+            taxon_fami_options_str  += '<option value="Asteraceae">Asteraceae</option>';
+            taxon_fami_options_str  += '<option value="Bombyliidae">Bombyliidae</option>';
+            taxon_fami_options_str  += '<option value="Boraginaceae">Boraginaceae</option>';
+            taxon_fami_options_str  += '<option value="Brassicaceae">Brassicaceae</option>';
+            taxon_fami_options_str  += '<option value="Bulimulidae">Bulimulidae</option>';
+            taxon_fami_options_str  += '<option value="Calceolariaceae">Calceolariaceae</option>';
+            taxon_fami_options_str  += '<option value="Calliphoridae">Calliphoridae</option>';
+            taxon_fami_options_str  += '<option value="Carabidae">Carabidae</option>';
+            taxon_fami_options_str  += '<option value="Caryophyllaceae">Caryophyllaceae</option>';
+            taxon_fami_options_str  += '<option value="Cicadellidae">Cicadellidae</option>';
+            taxon_fami_options_str  += '<option value="Coccinellidae">Coccinellidae</option>';
+            taxon_fami_options_str  += '<option value="Colletidae">Colletidae</option>';
+            taxon_fami_options_str  += '<option value="Convolvulaceae">Convolvulaceae</option>';
+            taxon_fami_options_str  += '<option value="Curculionidae">Curculionidae</option>';
+            taxon_fami_options_str  += '<option value="Dermestidae">Dermestidae</option>';
+            taxon_fami_options_str  += '<option value="Fabaceae">Fabaceae</option>';
+            taxon_fami_options_str  += '<option value="Geometridae">Geometridae</option>';
+            taxon_fami_options_str  += '<option value="Geoplanidae">Geoplanidae</option>';
+            taxon_fami_options_str  += '<option value="Geraniaceae">Geraniaceae</option>';
+            taxon_fami_options_str  += '<option value="Halictidae">Halictidae</option>';
+            taxon_fami_options_str  += '<option value="Heliothripidae">Heliothripidae</option>';
+            taxon_fami_options_str  += '<option value="Hesperiidae">Hesperiidae</option>';
+            taxon_fami_options_str  += '<option value="Lamiaceae">Lamiaceae</option>';
+            taxon_fami_options_str  += '<option value="Loranthaceae">Loranthaceae</option>';
+            taxon_fami_options_str  += '<option value="Malvaceae">Malvaceae</option>';
+            taxon_fami_options_str  += '<option value="Megachilidae">Megachilidae</option>';
+            taxon_fami_options_str  += '<option value="Melastomataceae">Melastomataceae</option>';
+            taxon_fami_options_str  += '<option value="Neriidae">Neriidae</option>';
+            taxon_fami_options_str  += '<option value="Onagraceae">Onagraceae</option>';
+            taxon_fami_options_str  += '<option value="Oxalidaceae">Oxalidaceae</option>';
+            taxon_fami_options_str  += '<option value="Papaveraceae">Papaveraceae</option>';
+            taxon_fami_options_str  += '<option value="Parmeliaceae">Parmeliaceae</option>';
+            taxon_fami_options_str  += '<option value="Philodromidae">Philodromidae</option>';
+            taxon_fami_options_str  += '<option value="Plantaginaceae">Plantaginaceae</option>';
+            taxon_fami_options_str  += '<option value="Poaceae">Poaceae</option>';
+            taxon_fami_options_str  += '<option value="Polygalaceae">Polygalaceae</option>';
+            taxon_fami_options_str  += '<option value="Polygonaceae">Polygonaceae</option>';
+            taxon_fami_options_str  += '<option value="Primulaceae">Primulaceae</option>';
+            taxon_fami_options_str  += '<option value="Rosaceae">Rosaceae</option>';
+            taxon_fami_options_str  += '<option value="Rutaceae">Rutaceae</option>';
+            taxon_fami_options_str  += '<option value="Schizophyllaceae">Schizophyllaceae</option>';
+            taxon_fami_options_str  += '<option value="Sclerosomatidae">Sclerosomatidae</option>';
+            taxon_fami_options_str  += '<option value="Scolopendridae">Scolopendridae</option>';
+            taxon_fami_options_str  += '<option value="Scolopocryptopidae">Scolopocryptopidae</option>';
+            taxon_fami_options_str  += '<option value="Scrophulariaceae">Scrophulariaceae</option>';
+            taxon_fami_options_str  += '<option value="Solanaceae">Solanaceae</option>';
+            taxon_fami_options_str  += '<option value="Strabomantidae">Strabomantidae</option>';
+            taxon_fami_options_str  += '<option value="Stratiomyidae">Stratiomyidae</option>';
+            taxon_fami_options_str  += '<option value="Syrphidae">Syrphidae</option>';
+            taxon_fami_options_str  += '<option value="Therevidae">Therevidae</option>';
+            taxon_fami_options_str  += '<option value="Theridiidae">Theridiidae</option>';
+            taxon_fami_options_str  += '<option value="Thomisidae">Thomisidae</option>';
+            taxon_fami_options_str  += '<option value="Tropiduridae">Tropiduridae</option>';
+            taxon_fami_options_str  += '<option value="Veronicellidae">Veronicellidae</option>';
+            taxon_fami_options_str  += '<option value="Viburnaceae">Viburnaceae</option>';
+            sel_taxon_fami.innerHTML = taxon_fami_options_str;
+            div_taxon_fami.appendChild(sel_taxon_fami);
+            var lab_taxon_fami = document.createElement('div');
+            lab_taxon_fami.innerHTML = 'taxon_fami';
+            lab_taxon_fami.className = 'filterlabel';
+            div_taxon_fami.appendChild(lab_taxon_fami);
+            var reset_taxon_fami = document.createElement('div');
+            reset_taxon_fami.innerHTML = 'clear filter';
+            reset_taxon_fami.className = 'filterlabel';
+            reset_taxon_fami.onclick = function() {
+                var options = document.getElementById("sel_taxon_fami").options;
+                for (var i=0; i < options.length; i++) {
+                    options[i].selected = false;
+                }
+                filterFunc();
+            };
+            div_taxon_fami.appendChild(reset_taxon_fami);
+        </script>
+    </body>
+</html>
